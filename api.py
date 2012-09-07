@@ -4,7 +4,8 @@ import re
 import urllib
 import zipfile
 
-API_HOST = 'http://api.brain-map.org/'
+#API_HOST = 'http://api.brain-map.org/'
+API_HOST = 'http://testwarehouse:9000/'
 API_QUERY_BASE_URL = API_HOST + 'api/v2/data/query.json'
 GRID_URL_FORMAT = API_HOST + "grid_data/download/%d"
 
@@ -21,7 +22,10 @@ def query(query_string, rows_per_query=2000):
     while not done:
 
         # Append start_row and num_row arguments to the query.
-        data = { 'criteria': '%s,rma::options[start_row$eq%d][num_rows$eq%d]' % (query_string, start_row, rows_per_query) }
+        data = { 'criteria': query_string,
+                 'start_row': start_row,
+                 'num_rows': rows_per_query }
+
         print data
 
         # Convert the response to JSON
@@ -33,7 +37,7 @@ def query(query_string, rows_per_query=2000):
 
         # Appen the response rows.
         rows += response_json['msg']
-
+        
         # Initialize total_rows if it hasn't been.
         if total_rows < 0:
             total_rows = int(response_json['total_rows'])
@@ -79,7 +83,7 @@ def download_grid_file(section_data_set_id, file_prefix=''):
 def download_data_sets(product_id, reference_space_age_names, plane_of_section_id):
     age_str = ','.join(("'%s'" % age_name) for age_name in reference_space_age_names)
     results = query(("model::SectionDataSet" +
-                     ",rma::criteria,[failed$eq'false'],[expression$eq'true'],[plane_of_section_id$eq%d],[storage_directory$ne'']" +
+                     ",rma::criteria,[failed$eq'false'][expression$eq'true'][plane_of_section_id$eq%d][storage_directory$nenull]" +
                      ",reference_space(age[name$in%s]),products[id$eq%s]" +
                      ",rma::include,probes,genes,reference_space") % (plane_of_section_id, age_str, product_id))
     return results

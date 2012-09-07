@@ -22,6 +22,9 @@ except OSError as exc:
 
 # Query the API for meta data on probes and structures in the developing mouse data set.
 data_sets = api.download_data_sets(DEVELOPING_MOUSE_PRODUCT_ID, REFERENCE_SPACE_AGE_NAMES, PLANE_OF_SECTION_ID)
+data_set_ids = set([d['id'] for d in data_sets])
+
+print len(data_set_ids), len(data_sets)
 
 data_sets.sort(key=lambda d: d['reference_space_id'])
 
