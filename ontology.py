@@ -1,5 +1,31 @@
 import csv
+import copy
 
+# Structures may have a parent and some number of children.  This class makes
+# it easy to keep track of them and makes the structure printable.
+class Structure(dict):
+    def __init__(self, *args, **kw):
+        super(Structure, self).__init__(*args, **kw)
+        self.parent = None
+        self.children = []
+
+    def __str__(self):
+        return str({ 'children': [c['database_id'] for c in self.children], 
+                     'parent': self.parent['database_id'] if self.parent else None,
+                     'structure': dict(self) })
+
+    # Does one structure_id descend from another?
+    def descendent_of(self, parent):
+        structure = self
+        while structure:
+            if structure['database_id'] == parent['database_id']:
+                return True
+            else:
+                structure = structure.parent
+
+        return False        
+
+        
 # A simple class for managing ontology structures.  It supports
 # a couple simple queries like:
 #    - does structure A descend from structure B?
@@ -11,8 +37,7 @@ class Ontology(object):
     DEVELOPING_MOUSE_ROOT_STRUCTURE_ID = 2000
 
     def __init__(self, rows, headers, root_database_id):
-        self.structure_list = rows
-        self.structures = { int(row['database_id']): row for row in rows }
+        self.structures = { int(row['database_id']): Structure(row) for row in rows }
         self.root = self.structures[root_database_id]
 
         for structure_id, structure in self.structures.iteritems():
@@ -23,10 +48,6 @@ class Ontology(object):
                     structure[key] = int(structure[key])
                 except ValueError:
                     pass
-
-            # pre-initialize all of the parent/child relationships.
-            structure['children'] = []
-            structure['parent'] = None
 
         # build the parent/child relationships
         for structure_id, structure in self.structures.iteritems():
@@ -39,27 +60,23 @@ class Ontology(object):
                 parent_structure_id = lineage[-2]
                 parent_structure = self.structures[parent_structure_id]
                 
-                structure['parent'] = parent_structure
-                parent_structure['children'].append(structure)
+                structure.parent = parent_structure
+                parent_structure.children.append(structure)
             except IndexError:
                 pass
 
-    # Get the structure meta data for a particular structure_id.
+    # Get structure meta data for a structure_id. Dictionary search.
     def get_structure(self, structure_id):
         return self.structures[structure_id]
 
-    # Does one structure_id descend from another?
-    def is_descendent(self, child_structure_id, parent_structure_id):
-        structure = self.structures[child_structure_id]
-        
-        while structure:
-            if structure['database_id'] == parent_structure_id:
-                return True
-            else:
-                structure = structure['parent']
+    # Get structure meta data for a structure name. Exhaustive search.
+    def get_structure_by_name(self, structure_name):
+        return next((s for sid, s in self.structures.iteritems() if s['name'] == structure_name), None)
 
-        return False
-                
+    # Get structure meta data for a structure acronym. Exhaustive search.
+    def get_structure_by_acronym(self, structure_acronym):
+        return next((s for sid, s in self.structures.iteritems() if s['acronym'] == structure_acronym), None)
+
 # Read an ontology from a CSV file, as written by download_data.py
 def read_from_csv(file_name, root_id):
     with open(file_name, 'r') as f:
@@ -71,7 +88,11 @@ def read_from_csv(file_name, root_id):
 if __name__ == "__main__":
     ontology = read_from_csv('meta/structures.csv', Ontology.DEVELOPING_MOUSE_ROOT_STRUCTURE_ID)
 
-    print "Root structure name:", ontology.root['name']
-    print "Structure 2049 name:", ontology.get_structure(2049)['name']
-    print "Does 2049 descend from root?", ontology.is_descendent(2049, Ontology.DEVELOPING_MOUSE_ROOT_STRUCTURE_ID)
-    print "What are 2049's children?", [child['name'] for child in ontology.get_structure(2048)['children']]
+    root = ontology.root
+    print "Root structure name:", root
+
+    isthmus = ontology.get_structure_by_acronym('is')
+    print "Isthmus name:", isthmus
+
+    print "Does isthmus descend from root?", isthmus.descendent_of(root)
+    print "What are ismus's children?", [child for child in isthmus.children]
