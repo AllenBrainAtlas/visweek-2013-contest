@@ -3,5 +3,5 @@ data
 *.mhd
 *.raw
 *.csv
-*#
+*#*
 *~

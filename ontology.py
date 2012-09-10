@@ -4,6 +4,7 @@ import copy
 # Structures may have a parent and some number of children.  This class makes
 # it easy to keep track of them and makes the structure printable.
 class Structure(dict):
+
     def __init__(self, *args, **kw):
         super(Structure, self).__init__(*args, **kw)
         self.parent = None
@@ -34,7 +35,7 @@ class Ontology(object):
     
     # A good place to keep track of the what the root structure ID is for the 
     # developing mouse product.
-    DEVELOPING_MOUSE_ROOT_STRUCTURE_ID = 2000
+    DEVELOPING_MOUSE_ROOT_STRUCTURE_ID = 6070
 
     def __init__(self, rows, headers, root_database_id):
         self.structures = { int(row['database_id']): Structure(row) for row in rows }
@@ -67,7 +68,10 @@ class Ontology(object):
 
     # Get structure meta data for a structure_id. Dictionary search.
     def get_structure(self, structure_id):
-        return self.structures[structure_id]
+        try:
+            return self.structures[structure_id]
+        except KeyError:
+            return None
 
     # Get structure meta data for a structure name. Exhaustive search.
     def get_structure_by_name(self, structure_name):

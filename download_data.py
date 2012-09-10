@@ -8,7 +8,7 @@ import os
 DEVELOPING_MOUSE_PRODUCT_ID = 3
 
 # ID of the structure ontology graph for this project.
-DEVELOPING_MOUSE_GRAPH_ID = 4 
+DEVELOPING_MOUSE_GRAPH_ID = 13
 
 # Age names for the different time points. E = embryonic, P = postnatal, # = days.
 REFERENCE_SPACE_AGE_NAMES = ['E13.5', 'E15.5', 'E18.5', 'P4', 'P14', 'P56']
