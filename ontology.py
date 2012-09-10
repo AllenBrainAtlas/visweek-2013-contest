@@ -1,8 +1,14 @@
 import csv
 import copy
 
+# This file has the Structure and Ontology classes, which are meant to demonstrate
+# how to read and interpret and ontology.  The 'download_data.py' script will
+# export the ontology as a list of structures in 'meta/structures.csv'.  The
+# structures are hierarchical, so each structure lists its parentage lineage
+# in the 'structure_database_id_path'.  
+
 # Structures may have a parent and some number of children.  This class makes
-# it easy to keep track of them and makes the structure printable.
+# it easy to keep track of them and makes the structure more easily printable.
 class Structure(dict):
 
     def __init__(self, *args, **kw):

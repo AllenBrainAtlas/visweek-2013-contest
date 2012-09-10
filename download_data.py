@@ -3,8 +3,16 @@ import csv
 import errno
 import os
 
-# This script will download the VisWeek 2013 contest data.
+# This script will download the entirety of the VisWeek 2013 contest data. 
+# Files will be exported into three directories:
+#
+#    - VOLUME_OUTPUT_DIRECTORY: where the expression energy files will go.
+#    - META_OUTPUT_DIRECTORY: where the structure and probe meta data will go.
+#    - ANNOTATION_OUTPUT_DIRECTORY: where the annotation volumes wil go.
+#
+# For an explanation of terminology and the data set in general, see README.md.
 
+# Database ID of the developing mouse data set, as stored in the API.
 DEVELOPING_MOUSE_PRODUCT_ID = 3
 
 # ID of the structure ontology graph for this project.
@@ -16,6 +24,7 @@ REFERENCE_SPACE_AGE_NAMES = ['E13.5', 'E15.5', 'E18.5', 'P4', 'P14', 'P56']
 # Only select data image sagittally.  There is a s
 PLANE_OF_SECTION_ID = 2 # sagittal
 
+# Hard-coded directories and file paths.
 VOLUME_OUTPUT_DIRECTORY = 'volumes/'
 META_OUTPUT_DIRECTORY = 'meta/'
 ANNOTATION_OUTPUT_DIRECTORY = 'annotation/'
@@ -36,8 +45,6 @@ for directory in [VOLUME_OUTPUT_DIRECTORY, META_OUTPUT_DIRECTORY, ANNOTATION_OUT
 # Query the API for meta data on probes and structures in the developing mouse data set.
 data_sets = api.download_data_sets(DEVELOPING_MOUSE_PRODUCT_ID, REFERENCE_SPACE_AGE_NAMES, PLANE_OF_SECTION_ID)
 data_set_ids = set([d['id'] for d in data_sets])
-
-print len(data_set_ids), len(data_sets)
 
 data_sets.sort(key=lambda d: d['reference_space_id'])
 

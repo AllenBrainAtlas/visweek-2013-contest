@@ -1,6 +1,11 @@
 import array
 import ontology
 
+# This script demonstrates a simple calculation that you can do using an 
+# expression energy volume and its corresponding annotation volume.  It
+# reads in both volumes, then computes the average expression of the
+# probe per structure.
+
 ENERGY_FILE_NAME = 'volumes/100083323_energy.raw'
 ANNOTATION_FILE_NAME = 'annotation/2_annotation.raw'
 ONTOLOGY_FILE_NAME = 'meta/structures.csv'
