@@ -3,22 +3,35 @@ import csv
 import errno
 import os
 
+# This script will download the VisWeek 2013 contest data.
+
 DEVELOPING_MOUSE_PRODUCT_ID = 3
-DEVELOPING_MOUSE_GRAPH_ID = 4
+
+# ID of the structure ontology graph for this project.
+DEVELOPING_MOUSE_GRAPH_ID = 4 
+
+# Age names for the different time points. E = embryonic, P = postnatal, # = days.
 REFERENCE_SPACE_AGE_NAMES = ['E13.5', 'E15.5', 'E18.5', 'P4', 'P14', 'P56']
+
+# Only select data image sagittally.  There is a s
 PLANE_OF_SECTION_ID = 2 # sagittal
-OUTPUT_DIRECTORY = 'data/'
-DATA_SETS_CSV = OUTPUT_DIRECTORY + 'data_sets.csv'
-STRUCTURES_CSV = OUTPUT_DIRECTORY + 'structures.csv'
+
+VOLUME_OUTPUT_DIRECTORY = 'volumes/'
+META_OUTPUT_DIRECTORY = 'meta/'
+ANNOTATION_OUTPUT_DIRECTORY = 'annotation/'
+
+DATA_SETS_CSV = META_OUTPUT_DIRECTORY + 'data_sets.csv'
+STRUCTURES_CSV = META_OUTPUT_DIRECTORY + 'structures.csv'
 
 # make the output directory if it doesn't exist already
-try:
-    os.makedirs(OUTPUT_DIRECTORY)
-except OSError as exc:
-    if exc.errno == errno.EEXIST:
-        pass
-    else:
-        raise
+for directory in [VOLUME_OUTPUT_DIRECTORY, META_OUTPUT_DIRECTORY, ANNOTATION_OUTPUT_DIRECTORY]:
+    try:
+        os.makedirs(directory)
+    except OSError as exc:
+        if exc.errno == errno.EEXIST:
+            pass
+        else:
+            raise
 
 # Query the API for meta data on probes and structures in the developing mouse data set.
 data_sets = api.download_data_sets(DEVELOPING_MOUSE_PRODUCT_ID, REFERENCE_SPACE_AGE_NAMES, PLANE_OF_SECTION_ID)
@@ -36,7 +49,7 @@ structures.sort(key=lambda s: s['graph_order'])
 reference_space_ids = set([d['reference_space_id'] for d in data_sets])
 
 for rsid in reference_space_ids:
-    mhd, raw = api.download_annotation_volume(rsid, OUTPUT_DIRECTORY)
+    mhd, raw = api.download_annotation_volume(rsid, ANNOTATION_OUTPUT_DIRECTORY)
 
     for data_set in data_sets:
         if data_set['reference_space_id'] == rsid:
@@ -50,7 +63,7 @@ gene_classifications = api.download_gene_classifications(gene_ids)
 
 # Download the expression energy files for each probe recieved.
 for data_set in data_sets:
-    mhd, raw = api.download_grid_file(data_set['id'], OUTPUT_DIRECTORY)
+    mhd, raw = api.download_grid_file(data_set['id'], VOLUME_OUTPUT_DIRECTORY)
     data_set['energy_file_name'] = mhd
     print mhd
 
