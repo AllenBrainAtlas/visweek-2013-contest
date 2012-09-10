@@ -69,13 +69,13 @@ for data_set in data_sets:
 
 # Save probe meta data into a CSV.
 with open(DATA_SETS_CSV, 'w') as f:
-    headers = ["section data set database id", 
-               "gene name", "gene acronym", "gene entrez id", "gene database id", 
-               "probe name", "probe database id", 
-               "energy file name", 
-               'reference space database id',
-               'reference space name',
-               'reference space file name',
+    headers = ["section_data_set_database_id", 
+               "gene_name", "gene_acronym", "gene_entrez id", "gene_database id", 
+               "probe_name", "probe_database_id", 
+               "energy_file_name", 
+               'reference_space_database_id',
+               'reference_space_name',
+               'reference_space_file_name',
                'classifications']
 
     writer = csv.writer(f)
@@ -98,7 +98,7 @@ with open(DATA_SETS_CSV, 'w') as f:
 
 # Save structure meta data into a CSV.
 with open(STRUCTURES_CSV, 'w') as f:
-    headers = ['database id', 'name', 'acronym', 'order', 'level', 'color', 'structure database id path']
+    headers = ['database_id', 'name', 'acronym', 'order', 'level', 'color', 'structure_database_id_path']
 
     writer = csv.writer(f)
     writer.writerow(headers)
