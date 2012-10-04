@@ -6,7 +6,7 @@ import ontology
 # reads in both volumes, then computes the average expression of the
 # probe per structure.
 
-ENERGY_FILE_NAME = 'volumes/100083323_energy.raw'
+ENERGY_FILE_NAME = 'energy/100083323_energy.raw'
 ANNOTATION_FILE_NAME = 'annotation/2_annotation.raw'
 ONTOLOGY_FILE_NAME = 'meta/structures.csv'
 
