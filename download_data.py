@@ -6,9 +6,10 @@ import os
 # This script will download the entirety of the VisWeek 2013 contest data. 
 # Files will be exported into three directories:
 #
-#    - VOLUME_OUTPUT_DIRECTORY: where the expression energy files will go.
+#    - ENERGY_OUTPUT_DIRECTORY: where the expression energy files will go.
 #    - META_OUTPUT_DIRECTORY: where the structure and probe meta data will go.
 #    - ANNOTATION_OUTPUT_DIRECTORY: where the annotation volumes wil go.
+#    - ATLAS_OUTPUT_DIRECTORY: where the atlas volumes wil go.
 #
 # For an explanation of terminology and the data set in general, see README.md.
 
@@ -25,15 +26,16 @@ REFERENCE_SPACE_AGE_NAMES = ['E13.5', 'E15.5', 'E18.5', 'P4', 'P14', 'P56']
 PLANE_OF_SECTION_ID = 2 # sagittal
 
 # Hard-coded directories and file paths.
-VOLUME_OUTPUT_DIRECTORY = 'volumes/'
+ENERGY_OUTPUT_DIRECTORY = 'energy/'
 META_OUTPUT_DIRECTORY = 'meta/'
 ANNOTATION_OUTPUT_DIRECTORY = 'annotation/'
+ATLAS_OUTPUT_DIRECTORY = 'atlas/'
 
 DATA_SETS_CSV = META_OUTPUT_DIRECTORY + 'data_sets.csv'
 STRUCTURES_CSV = META_OUTPUT_DIRECTORY + 'structures.csv'
 
 # make the output directory if it doesn't exist already
-for directory in [VOLUME_OUTPUT_DIRECTORY, META_OUTPUT_DIRECTORY, ANNOTATION_OUTPUT_DIRECTORY]:
+for directory in [ENERGY_OUTPUT_DIRECTORY, META_OUTPUT_DIRECTORY, ANNOTATION_OUTPUT_DIRECTORY, ATLAS_OUTPUT_DIRECTORY]:
     try:
         os.makedirs(directory)
     except OSError as exc:
@@ -52,7 +54,7 @@ structures = api.download_structures(DEVELOPING_MOUSE_GRAPH_ID)
 
 structures.sort(key=lambda s: s['graph_order'])
 
-# Download the annotation volumes for the requested reference spaces
+# Download the annotation volumes and atlas volumesfor the requested reference spaces
 reference_space_ids = set([d['reference_space_id'] for d in data_sets])
 
 for rsid in reference_space_ids:
@@ -60,7 +62,15 @@ for rsid in reference_space_ids:
 
     for data_set in data_sets:
         if data_set['reference_space_id'] == rsid:
-            data_set['reference_space_file_name'] = mhd
+            data_set['annotation_file_name'] = mhd
+            
+    print mhd
+
+    mhd, raw = api.download_atlas_volume(rsid, ATLAS_OUTPUT_DIRECTORY)
+
+    for data_set in data_sets:
+        if data_set['reference_space_id'] == rsid:
+            data_set['atlas_file_name'] = mhd
             
     print mhd
 
@@ -70,7 +80,7 @@ gene_classifications = api.download_gene_classifications(gene_ids)
 
 # Download the expression energy files for each probe recieved.
 for data_set in data_sets:
-    mhd, raw = api.download_grid_file(data_set['id'], VOLUME_OUTPUT_DIRECTORY)
+    mhd, raw = api.download_grid_file(data_set['id'], ENERGY_OUTPUT_DIRECTORY)
     data_set['energy_file_name'] = mhd
     print mhd
 
@@ -82,7 +92,8 @@ with open(DATA_SETS_CSV, 'w') as f:
                "energy_file_name", 
                'reference_space_database_id',
                'reference_space_name',
-               'reference_space_file_name',
+               'annotation_file_name',
+               'atlas_file_name',
                'classifications']
 
     writer = csv.writer(f)
@@ -100,7 +111,8 @@ with open(DATA_SETS_CSV, 'w') as f:
                          data_set['energy_file_name'], 
                          refspace['id'],
                          refspace['name'],
-                         data_set['reference_space_file_name'],
+                         data_set['annotation_file_name'],
+                         data_set['atlas_file_name'],
                          classification_string])
 
 # Save structure meta data into a CSV.

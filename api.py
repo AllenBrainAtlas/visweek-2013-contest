@@ -4,8 +4,7 @@ import re
 import urllib
 import zipfile
 
-#API_HOST = 'http://api.brain-map.org/'
-API_HOST = 'http://testwarehouse:9000/'
+API_HOST = 'http://api.brain-map.org/'
 API_QUERY_BASE_URL = API_HOST + 'api/v2/data/query.json'
 GRID_URL_FORMAT = API_HOST + "grid_data/download/%d"
 
@@ -142,6 +141,56 @@ def download_annotation_volume(reference_space_id, file_prefix, tmp_file="tmp.zi
     os.remove(tmp_file)
 
     return os.path.basename(annot_mhd_file_name), os.path.basename(annot_raw_file_name)
+
+# Download the annotated volume file for a gien reference space.
+def download_atlas_volume(reference_space_id, file_prefix, tmp_file="tmp.zip"):
+
+    # Decide what to call the mhd/raw when we save them.
+    atlas_mhd_file_name = '%s%d_atlas.mhd' % (file_prefix, reference_space_id)
+    atlas_raw_file_name = '%s%d_atlas.raw' % (file_prefix, reference_space_id)
+
+    if os.path.exists(atlas_raw_file_name) and os.path.exists(atlas_mhd_file_name):
+        return os.path.basename(atlas_mhd_file_name), os.path.basename(atlas_raw_file_name)
+    
+    # Each reference space has a well known file called 'atlasVolume.zip'. 
+    # Query the API for the link to that file.
+    results = query("model::ReferenceSpace,rma::criteria,[id$eq%d],rma::include,well_known_files[path$li'*atlasVolume.zip']" % reference_space_id)
+    refspace = results[0]
+    reffile = refspace['well_known_files'][0]
+
+    # Download the zip file.
+    fh = urllib.urlretrieve(API_HOST + reffile["download_link"], tmp_file)
+    zf = zipfile.ZipFile(fh[0])
+
+    # Unzip it and pull out the header and raw file.  Due to inconsistent naming conventions, this could
+    # either be just atlasVolume.{mhd|raw} or atlasVolume/atlasVolume.{mdh|raw}
+    header = None
+    raw = None
+    for atlas_prefix in ["atlasVolume","atlasVolume/atlasVolume"]:
+        try:
+            header = zf.read('%s.mhd' % atlas_prefix)
+            raw = zf.read('%s.raw' % atlas_prefix)
+            break
+        except:
+            pass
+    
+    assert header, "Failed to unzip atlas volume header file"
+    assert raw, "Failed to unzip atlas volume raw file"
+
+
+    # Update the mhd to use the new raw file name.
+    header = header.replace('atlasVolume.raw', os.path.basename(atlas_raw_file_name))
+
+    # Save them.
+    with open(atlas_mhd_file_name, 'w') as f:
+        f.write(header)
+
+    with open(atlas_raw_file_name, 'wb') as f:
+        f.write(raw)
+
+    os.remove(tmp_file)
+
+    return os.path.basename(atlas_mhd_file_name), os.path.basename(atlas_raw_file_name)
 
 def download_gene_classifications(gene_ids):
     gene_id_str = ",".join(str(gid) for gid in gene_ids)
