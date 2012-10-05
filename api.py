@@ -203,3 +203,8 @@ def download_gene_classifications(gene_ids):
             classifications[gene['id']].append(classification['name'])
     
     return classifications
+
+# Download all of the expression statistics for structures labeled in 
+# the developmental stage of a single data set.
+def download_unionizes(data_set_id):
+    return query("model::StructureUnionize,rma::criteria,[section_data_set_id$eq%d]" % data_set_id)

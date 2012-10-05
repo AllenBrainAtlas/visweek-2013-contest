@@ -10,6 +10,7 @@ import os
 #    - META_OUTPUT_DIRECTORY: where the structure and probe meta data will go.
 #    - ANNOTATION_OUTPUT_DIRECTORY: where the annotation volumes wil go.
 #    - ATLAS_OUTPUT_DIRECTORY: where the atlas volumes wil go.
+#    - STRUCTURE_UNIONIZES_OUTPUT_DIRECTORY: where the structure unionizes will go.
 #
 # For an explanation of terminology and the data set in general, see README.md.
 
@@ -30,12 +31,13 @@ ENERGY_OUTPUT_DIRECTORY = 'energy/'
 META_OUTPUT_DIRECTORY = 'meta/'
 ANNOTATION_OUTPUT_DIRECTORY = 'annotation/'
 ATLAS_OUTPUT_DIRECTORY = 'atlas/'
+STRUCTURE_UNIONIZES_OUTPUT_DIRECTORY = 'structure_unionizes/'
 
 DATA_SETS_CSV = META_OUTPUT_DIRECTORY + 'data_sets.csv'
 STRUCTURES_CSV = META_OUTPUT_DIRECTORY + 'structures.csv'
 
 # make the output directory if it doesn't exist already
-for directory in [ENERGY_OUTPUT_DIRECTORY, META_OUTPUT_DIRECTORY, ANNOTATION_OUTPUT_DIRECTORY, ATLAS_OUTPUT_DIRECTORY]:
+for directory in [ENERGY_OUTPUT_DIRECTORY, META_OUTPUT_DIRECTORY, ANNOTATION_OUTPUT_DIRECTORY, ATLAS_OUTPUT_DIRECTORY, STRUCTURE_UNIONIZES_OUTPUT_DIRECTORY]:
     try:
         os.makedirs(directory)
     except OSError as exc:
@@ -125,5 +127,28 @@ with open(STRUCTURES_CSV, 'w') as f:
     for s in structures:
         writer.writerow([s['id'], s['name'], s['acronym'], s['graph_order'], s['st_level'], s['color_hex_triplet'], s['structure_id_path']])
 
+# The structure unionize query requests all of the structure-level statistics
+# for a probe.  There are a large number of unionizes (roughly speaking one
+# row per structure in the stage of the data set), so the results are stored
+# in one file per gene.  
+for data_set_id in data_set_ids:
+    
+    # Make the query.
+    unionizes = api.download_unionizes(data_set_id)
+
+    file_name = "%s%d.csv" % (STRUCTURE_UNIONIZES_OUTPUT_DIRECTORY, data_set_id)
+
+    if os.path.exists(file_name):
+        continue
+
+    # Save structure unionizes into a CSV.
+    with open(file_name, 'w') as f:
+        headers = ['section_data_set_id', 'structure_id', 'expression_energy', 'sum_expressing_pixel_intensity', 'sum_pixels']
+        
+        writer = csv.writer(f)
+        writer.writerow(headers)
+
+        for u in unionizes:
+            writer.writerow([u['section_data_set_id'], u['structure_id'], u['expression_energy'], u['sum_expressing_pixel_intensity'], u['sum_pixels']])
 
 
