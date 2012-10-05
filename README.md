@@ -17,4 +17,4 @@ This will probably take multiple hours.  Files will be downloaded into the curre
 * meta/ - a directory containing meta data on probes (data_sets.csv) and structures (structures.csv).
 * atlas/ - a directory containing reference atlas volumes, one for each developmental stage.
 * annotation/ - a directory containing grid annotation volumes, one for each developmental stage.  Voxel values are structure ids.
-* structure_unioniezs/ - a directory containing one CSV per probe.  Each CSV contains a set of rows describing the expression energy for a probe within an entire structure.
+* structure_unionizes/ - a directory containing one CSV per probe.  Each CSV contains a set of rows describing the expression energy for a probe within an entire structure.
