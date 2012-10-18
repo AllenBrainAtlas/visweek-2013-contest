@@ -18,3 +18,5 @@ This will probably take multiple hours.  Files will be downloaded into the curre
 * atlas/ - a directory containing reference atlas volumes, one for each developmental stage.
 * annotation/ - a directory containing grid annotation volumes, one for each developmental stage.  Voxel values are structure ids.
 * structure_unionizes/ - a directory containing one CSV per probe.  Each CSV contains a set of rows describing the expression energy for a probe within an entire structure.
+
+Note: this python script has only been tested with python 2.7.2.  
