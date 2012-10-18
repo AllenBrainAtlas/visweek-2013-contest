@@ -19,4 +19,6 @@ This will probably take multiple hours.  Files will be downloaded into the curre
 * annotation/ - a directory containing grid annotation volumes, one for each developmental stage.  Voxel values are structure ids.
 * structure_unionizes/ - a directory containing one CSV per probe.  Each CSV contains a set of rows describing the expression energy for a probe within an entire structure.
 
-Note: this python script has only been tested with python 2.7.2.  
+Note: this python script has only been tested with python 2.7.2. 
+
+Note 2: there have been problems reported using this script in both native Windows Python and Cygwin.  If you can, use linux/unix.
