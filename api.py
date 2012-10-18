@@ -3,6 +3,7 @@ import os
 import re
 import urllib
 import zipfile
+import StringIO
 
 API_HOST = 'http://api.brain-map.org/'
 API_QUERY_BASE_URL = API_HOST + 'api/v2/data/query.json'
@@ -60,9 +61,7 @@ def download_grid_file(section_data_set_id, file_prefix=''):
 
     url = GRID_URL_FORMAT % (section_data_set_id)
     print url
-    fh = urllib.urlretrieve(url)
-
-    zf = zipfile.ZipFile(fh[0])
+    zf = zipfile.ZipFile(read_url(url))
     
     header = zf.read('energy.mhd')
     raw = zf.read('energy.raw')
@@ -93,7 +92,7 @@ def download_structures(graph_id):
     return results
 
 # Download the annotated volume file for a gien reference space.
-def download_annotation_volume(reference_space_id, file_prefix, tmp_file="tmp.zip"):
+def download_annotation_volume(reference_space_id, file_prefix):
 
     # Decide what to call the mhd/raw when we save them.
     annot_mhd_file_name = '%s%d_annotation.mhd' % (file_prefix, reference_space_id)
@@ -109,8 +108,8 @@ def download_annotation_volume(reference_space_id, file_prefix, tmp_file="tmp.zi
     reffile = refspace['well_known_files'][0]
 
     # Download the zip file.
-    fh = urllib.urlretrieve(API_HOST + reffile["download_link"], tmp_file)
-    zf = zipfile.ZipFile(fh[0])
+    url = API_HOST + reffile["download_link"]    
+    zf = zipfile.ZipFile(read_url(url))
 
     # Unzip it and pull out the header and raw file.  Due to inconsistent naming conventions, this could
     # either be just gridAnnotation.{mhd|raw} or gridAnnotation/gridAnnotation.{mdh|raw}
@@ -138,12 +137,10 @@ def download_annotation_volume(reference_space_id, file_prefix, tmp_file="tmp.zi
     with open(annot_raw_file_name, 'wb') as f:
         f.write(raw)
 
-    os.remove(tmp_file)
-
     return os.path.basename(annot_mhd_file_name), os.path.basename(annot_raw_file_name)
 
 # Download the annotated volume file for a gien reference space.
-def download_atlas_volume(reference_space_id, file_prefix, tmp_file="tmp.zip"):
+def download_atlas_volume(reference_space_id, file_prefix):
 
     # Decide what to call the mhd/raw when we save them.
     atlas_mhd_file_name = '%s%d_atlas.mhd' % (file_prefix, reference_space_id)
@@ -159,8 +156,8 @@ def download_atlas_volume(reference_space_id, file_prefix, tmp_file="tmp.zip"):
     reffile = refspace['well_known_files'][0]
 
     # Download the zip file.
-    fh = urllib.urlretrieve(API_HOST + reffile["download_link"], tmp_file)
-    zf = zipfile.ZipFile(fh[0])
+    url = API_HOST + reffile["download_link"]    
+    zf = zipfile.ZipFile(read_url(url))
 
     # Unzip it and pull out the header and raw file.  Due to inconsistent naming conventions, this could
     # either be just atlasVolume.{mhd|raw} or atlasVolume/atlasVolume.{mdh|raw}
@@ -186,9 +183,7 @@ def download_atlas_volume(reference_space_id, file_prefix, tmp_file="tmp.zip"):
         f.write(header)
 
     with open(atlas_raw_file_name, 'wb') as f:
-        f.write(raw)
-
-    os.remove(tmp_file)
+        f.write(raw)   
 
     return os.path.basename(atlas_mhd_file_name), os.path.basename(atlas_raw_file_name)
 
@@ -208,3 +203,8 @@ def download_gene_classifications(gene_ids):
 # the developmental stage of a single data set.
 def download_unionizes(data_set_id):
     return query("model::StructureUnionize,rma::criteria,[section_data_set_id$eq%d]" % data_set_id)
+    
+def read_url(url):
+    usock = urllib.urlopen(url)
+    data = StringIO.StringIO(usock.read())
+    return data

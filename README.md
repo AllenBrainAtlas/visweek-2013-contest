@@ -21,4 +21,4 @@ This will probably take multiple hours.  Files will be downloaded into the curre
 
 Note: this python script has only been tested with python 2.7.2. 
 
-Note 2: there have been problems reported using this script in both native Windows Python and Cygwin.  If you can, use linux/unix.
+Note 2: there have been problems reported using this script in Cygwin.  If you can avoid Cygwin, please do so.
