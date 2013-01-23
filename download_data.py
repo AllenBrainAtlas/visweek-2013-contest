@@ -21,7 +21,7 @@ DEVELOPING_MOUSE_PRODUCT_ID = 3
 DEVELOPING_MOUSE_GRAPH_ID = 13
 
 # Age names for the different time points. E = embryonic, P = postnatal, # = days.
-REFERENCE_SPACE_AGE_NAMES = ['E13.5', 'E15.5', 'E18.5', 'P4', 'P14', 'P56']
+REFERENCE_SPACE_AGE_NAMES = ['E13.5', 'E15.5', 'E18.5', 'P4', 'P14']
 
 # Only select data image sagittally.  There is a s
 PLANE_OF_SECTION_ID = 2 # sagittal
