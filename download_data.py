@@ -18,13 +18,13 @@ import os
 DEVELOPING_MOUSE_PRODUCT_ID = 3
 
 # ID of the structure ontology graph for this project.
-DEVELOPING_MOUSE_GRAPH_ID = 13
+DEVELOPING_MOUSE_GRAPH_ID = 17
 
 # Age names for the different time points. E = embryonic, P = postnatal, # = days.
-REFERENCE_SPACE_AGE_NAMES = ['E13.5', 'E15.5', 'E18.5', 'P4', 'P14']
+REFERENCE_SPACE_AGE_NAMES = ['E13.5', 'E15.5', 'E18.5', 'P4', 'P14', 'P28']
 
-# Only select data image sagittally.  There is a s
-PLANE_OF_SECTION_ID = 2 # sagittal
+# Only select data image sagittally.  
+PLANE_OF_SECTION_ID = 2
 
 # Hard-coded directories and file paths.
 ENERGY_OUTPUT_DIRECTORY = 'energy/'
@@ -77,6 +77,9 @@ for rsid in reference_space_ids:
     print mhd
 
 # Download gene classification meta data 
+for ds in data_sets:
+    print ds['id'], ds['genes'][0]
+
 gene_ids = set([d['genes'][0]['id'] for d in data_sets])
 gene_classifications = api.download_gene_classifications(gene_ids)
 
@@ -134,7 +137,7 @@ with open(STRUCTURES_CSV, 'w') as f:
 for data_set_id in data_set_ids:
     
     # Make the query.
-    unionizes = api.download_unionizes(data_set_id)
+    unionizes = api.download_unionizes(data_set_id, DEVELOPING_MOUSE_GRAPH_ID)
 
     file_name = "%s%d.csv" % (STRUCTURE_UNIONIZES_OUTPUT_DIRECTORY, data_set_id)
 

@@ -81,8 +81,9 @@ def download_grid_file(section_data_set_id, file_prefix=''):
 def download_data_sets(product_id, reference_space_age_names, plane_of_section_id):
     age_str = ','.join(("'%s'" % age_name) for age_name in reference_space_age_names)
     results = query(("model::SectionDataSet" +
-                     ",rma::criteria,[failed$eq'false'][expression$eq'true'][plane_of_section_id$eq%d][storage_directory$nenull]" +
-                     ",reference_space(age[name$in%s]),products[id$eq%s]" +
+                     ",rma::criteria,[failed$eq'false'][plane_of_section_id$eq%d][storage_directory$nenull]" +
+                     ",specimen(donor(age[name$in%s])),products[id$eq%s]" +
+                     ",treatments[name$eq'ISH']" +
                      ",rma::include,probes,genes,reference_space") % (plane_of_section_id, age_str, product_id))
     return results
 
@@ -201,8 +202,8 @@ def download_gene_classifications(gene_ids):
 
 # Download all of the expression statistics for structures labeled in 
 # the developmental stage of a single data set.
-def download_unionizes(data_set_id):
-    return query("model::StructureUnionize,rma::criteria,[section_data_set_id$eq%d]" % data_set_id)
+def download_unionizes(data_set_id, graph_id):
+    return query("model::StructureUnionize,rma::criteria,[section_data_set_id$eq%d],structure[graph_id$eq%d]" % (data_set_id, graph_id) )
     
 def read_url(url):
     usock = urllib.urlopen(url)
